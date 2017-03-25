@@ -29,12 +29,12 @@ X_test = scaler.transform(X_test)
 
 print 'Step 2 of 3: build random forest model...'
 #create predictive model
-model = RandomForestRegressor(n_jobs=4, oob_score=True)
+model = RandomForestRegressor(n_jobs=4, oob_score=True, min_samples_leaf=5, n_estimators=30)
 model.fit(X_train, Y_train)
 
 #determine accuracy
 Y_test_pred = model.predict(X_test)
-RMSE = mean_squared_error(Y_test, Y_test_pred)**0.5
+MSE = mean_squared_error(Y_test, Y_test_pred)**0.5
 
 print 'Step 3 of 3: save model...'
 #serialize model to pickle
