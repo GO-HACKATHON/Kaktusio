@@ -107,7 +107,7 @@ df['GAP_FCST'] = df.GAP.shift(-forecast_period)
 df = df.drop('GAP', axis=1)
 
 
-#create historical data
+#create 6 backward timesteps as features
 df['DEMAND t-1'] = df.DEMAND.shift(periods=1)
 df['DEMAND t-2'] = df.DEMAND.shift(periods=2)
 df['DEMAND t-3'] = df.DEMAND.shift(periods=3)
