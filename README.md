@@ -19,8 +19,8 @@ Go-Search requires two data as raw input:
 Since we don't have direct access to that kind of data, we will create a dummy data, processed from Kaggle datasets (https://www.kaggle.com/c/pkdd-15-predict-taxi-service-trajectory-i). The data provides a dataset describing the trajectories for all the 442 taxis running in the city of Porto, in Portugal (around 75km2 area). We treat the taxi's starting point as demand data (customer requests), and taxi end point (taxi availability) as supply data.
 
 
-##Our Approach
-###Data Processing
+## Our Approach
+### Data Processing
 We process the data by dividing Porto city into grids, with 1km2 wide for each. We then divide the day into time slots with 10 minutes length. In each location and time slots, we define the number of customer request (demand) and the number of iddle drivers (supply).
 
 Every 10 minutes, we attempt to predict supply and demand gap for the next 30 minutes for all location. Thus the heatmap will be updated with a new forecast for every 10 minutes. 
@@ -33,8 +33,8 @@ We use Root Mean Squared Error as evaluation metric. This metric measures the er
 ### Conclusion
 The data processing and modeling approach for Go-Search has shown a good initial result. This model can be developed further to improve its accuracy. For example by testing the model with a real ride-hailing service data, such as from Go-Jek, Grab, and Uber. One can also develop the model to be able to prescript the drivers to move to specific area to maximize revenue and optimize the supply and demand for entire city.
 
-##Running the Code
-###Dependency
+## Running the Code
+### Dependency
 - Python 2.7
 - Numpy
 - Scipy
@@ -43,7 +43,7 @@ The data processing and modeling approach for Go-Search has shown a good initial
 - Seaborn
 - Sklearn
 
-###Steps to Run
+###  Steps to Run
 1. git clone (this repository)
 2. install dependency: pip install -r requirements.txt
 3. run data_process.py: python data_process.py
