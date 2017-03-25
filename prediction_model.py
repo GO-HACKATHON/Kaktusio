@@ -6,13 +6,8 @@ from sklearn.externals import joblib
 
 print 'Step 1 of 3: import datasets...'
 #import processed_data
-df = pd.read_csv('processed_data/demand_supply.csv')
-
-#split data into train and test datasets
-train_size = int(0.9*len(df))
-
-df_train = df[:train_size]
-df_test = df[train_size:]
+df_train = pd.read_csv('processed_data/training_data.csv')
+df_test = pd.read_csv('processed_data/test_data.csv')
 
 #remove data that has no supply and demand data for faster processing
 df_train = df_train[(df_train.DEMAND != 0) & (df_train.SUPPLY != 0)]
@@ -34,7 +29,7 @@ X_test = scaler.transform(X_test)
 
 print 'Step 2 of 3: build random forest model...'
 #create predictive model
-model = RandomForestRegressor(n_jobs=2, oob_score=True)
+model = RandomForestRegressor(n_jobs=4, oob_score=True)
 model.fit(X_train, Y_train)
 
 #determine accuracy
@@ -46,5 +41,5 @@ print 'Step 3 of 3: save model...'
 joblib.dump(model, 'prediction_model.pkl')
 joblib.dump(scaler, 'scaler.pkl')
 
-print 'Prediction model performance:'
+print 'Model performance:'
 print 'Root Mean Squared Error = ', RMSE

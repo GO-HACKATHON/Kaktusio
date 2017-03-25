@@ -2,15 +2,15 @@
 import pandas as pd
 import numpy as np
 
+print 'Step 1 of 7: import raw data...'
 #import data from csv files
 d = pd.read_csv('raw_data/demand.csv',  parse_dates=['TIME_STAMP'])
 s = pd.read_csv('raw_data/supply.csv',  parse_dates=['TIME_STAMP'])
 
-
+print 'Step 2 of 7: reshape data and create features...'
 #give label for each files
 d['LABEL'] = 'D'
 s['LABEL'] = 'S'
-
 
 #parse timestamp into week, day, hour, and minute
 d['WEEK'] = d['TIME_STAMP'].dt.week
@@ -39,19 +39,16 @@ s['Y'] = (s.LAT-min_lat)/0.01
 s['X'] = s['X'].astype(int)
 s['Y'] = s['Y'].astype(int)
 
-
+print 'Step 3 of 7: combine demand and supply data...'
 #combine demand and supply data
 ds = pd.concat([d,s])
-
 
 #create pivot table to bin data supply and demand per minute
 pvt = ds.pivot_table(['TAXI_ID'], index=['WEEK', 'DAY', 'HOUR', 'MINUTE', 'X', 'Y'], columns=['LABEL'], aggfunc='count', fill_value=0)
 
-
 #flatten column names
 pvt.columns = list(pvt.columns)
 pvt.reset_index(inplace=True)
-
 
 #change column name to differentiate DEMAND and SUPPLY
 pvt.rename(columns = {('TAXI_ID', 'D'):'DEMAND', ('TAXI_ID', 'S'):'SUPPLY'}, inplace=True)
@@ -59,7 +56,7 @@ pvt.rename(columns = {('TAXI_ID', 'D'):'DEMAND', ('TAXI_ID', 'S'):'SUPPLY'}, inp
 #create new data based on demand and supply data
 new_data = pvt[['X', 'Y', 'WEEK', 'DAY', 'HOUR', 'MINUTE', 'DEMAND', 'SUPPLY']]
 
-
+print 'Step 4 of 7: bin data into timesteps..'
 # bin data into timesteps
 timestep = 10 #in minutes
 
@@ -73,6 +70,7 @@ df = new_data.groupby(by=['WEEK', 'DAY', 'TIMESTEP','X', 'Y'], as_index=False)['
 df = df[df.GAP <= df.GAP.quantile(0.99)]
 df = df[df.GAP >= df.GAP.quantile(0.01)]
 
+print 'Step 5 of 7: handle missing data...'
 #create dummy dataframe to fill missing area with zero demand and supply
 WEEK = df['WEEK'].unique().tolist()
 DAY = df['DAY'].unique().tolist()
@@ -99,13 +97,13 @@ df = pd.concat([df,df_dummy])
 df = df.groupby(by=['WEEK', 'DAY', 'TIMESTEP', 'X', 'Y'],  as_index=False)['DEMAND', 'SUPPLY', 'GAP'].sum()
 
 
+print 'Step 6 of 7: create forecast & historical data...'
 #create forecast data
 forecast_period = 3 #timesteps
 
 df = df.sort_values(by=['X', 'Y', 'WEEK', 'DAY', 'TIMESTEP'])
 df['GAP_FCST'] = df.GAP.shift(-forecast_period)
 df = df.drop('GAP', axis=1)
-
 
 #create 6 backward timesteps as features
 df['DEMAND t-1'] = df.DEMAND.shift(periods=1)
@@ -124,6 +122,17 @@ df['SUPPLY t-6'] = df.DEMAND.shift(periods=6)
 
 df = df.fillna(0)
 df = df.reset_index(drop=True)
+df = df.sort_values(by=['WEEK', 'DAY', 'TIMESTEP', 'X', 'Y'])
+
+print 'Step 7 of 7: split data into training and testing datasets...'
+#split data into train and test datasets
+train_size = int(0.9*len(df))
+
+df_train = df[:train_size]
+df_test = df[train_size:]
 
 #export new data to csv files
-df.to_csv('processed_data/demand_supply.csv', index=False, encoding='utf-8')
+df_train.to_csv('processed_data/training_data.csv', index=False, encoding='utf-8')
+df_test.to_csv('processed_data/test_data.csv', index=False, encoding='utf-8')
+
+print 'Datasets are ready!'
