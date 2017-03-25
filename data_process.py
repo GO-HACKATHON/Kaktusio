@@ -1,5 +1,6 @@
 
 import pandas as pd
+import numpy as np
 
 #import data from csv files
 d = pd.read_csv('raw_data/demand.csv',  parse_dates=['TIME_STAMP'])
@@ -67,8 +68,36 @@ new_data['TIMESTEP'] = (new_data.HOUR*60 + new_data.MINUTE)/timestep
 new_data['TIMESTEP'] = new_data.TIMESTEP.astype(int)
 
 df = new_data.groupby(by=['WEEK', 'DAY', 'TIMESTEP','X', 'Y'], as_index=False)['DEMAND', 'SUPPLY', 'GAP'].sum()
+
+#cut outlier/extreme data (2% tails)
 df = df[df.GAP <= df.GAP.quantile(0.99)]
 df = df[df.GAP >= df.GAP.quantile(0.01)]
+
+#create dummy dataframe to fill missing area with zero demand and supply
+WEEK = df['WEEK'].unique().tolist()
+DAY = df['DAY'].unique().tolist()
+TIMESTEP = df['TIMESTEP'].unique().tolist()
+X = df['X'].unique().tolist()
+X = np.sort(X)
+Y = df['Y'].unique().tolist()
+Y = np.sort(Y)
+
+dummy = []
+
+for week in WEEK:
+    for day in DAY:
+        for ts in TIMESTEP:
+            for x in X:
+                for y in Y:
+                    dummy.append({'WEEK': week, 'DAY': day, 'TIMESTEP':ts, 'X':x, 'Y':y, 'DEMAND':0, 'SUPPLY':0, 'GAP':0})
+
+df_dummy = pd.DataFrame(dummy)
+df_dummy = df_dummy[['WEEK', 'DAY', 'TIMESTEP', 'X', 'Y', 'DEMAND', 'SUPPLY', 'GAP']]
+
+#concat and regroup data
+df = pd.concat([df,df_dummy])
+df = df.groupby(by=['WEEK', 'DAY', 'TIMESTEP', 'X', 'Y'],  as_index=False)['DEMAND', 'SUPPLY', 'GAP'].sum()
+
 
 #create forecast data
 forecast_period = 3 #timesteps
