@@ -2,6 +2,8 @@
 Go-Search - Machine learning powered Heatmap to predict supply-demand gap for ride hailing services across city.
 
 Play Go-Search.mp4 video file to peek the result! 
+Youtube: https://www.youtube.com/watch?v=a6pafjwtKyo
+Presentation: goo.gl/o1vAfx
 
 ### Everyone hates waiting... or, even worse, surge pricing.
 In ride-hailing service, nobody likes to get a price increase, especially in the time when you need the service the most. The idea behind surge pricing is to attract more drivers go down on roads when the demand arises by offering them a better price. It is indeed a sensible approach from a basic supply-demand model to keep the market in equilibrium. But on the other side, it is also a turn-off for some of customers.
